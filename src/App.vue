@@ -10,9 +10,11 @@ export default {
       editTodo: false,
       todo: null,
       todos: [
-        { id: id++, text: 'Learn HTML' },
-        { id: id++, text: 'Learn JavaScript' },
-        { id: id++, text: 'Learn Vue Js' }
+        { id: id++, text: 'Learn HTML', checkList: false, edited: false },
+        { id: id++, text: 'Learn CSS', checkList: false, edited: false },
+        { id: id++, text: 'Learn JavaScript', checkList: false, edited: false },
+        { id: id++, text: 'Learn MYSQL', checkList: false, edited: false },
+        { id: id++, text: 'Learn Vue Js', checkList: false, edited: false }
       ]
     }
   },
@@ -25,12 +27,12 @@ export default {
         if(this.todos.length == 0){
           id = 1
           this.emptyNewTodo = false
-          this.todos.push({id:id++, text: this.newTodo})
+          this.todos.push({id:id++, text: this.newTodo, checkList: false, edited: false})
           this.newTodo = ''
           this.openModal = false
         } else {
           this.emptyNewTodo = false
-          this.todos.push({id:id++, text: this.newTodo})
+          this.todos.push({id:id++, text: this.newTodo, checkList: false, edited: false})
           this.newTodo = ''
           this.openModal = false
         }
@@ -45,9 +47,17 @@ export default {
       this.todoKey = key
     },
     updateTodo(){
-      this.todos[this.todoKey].text = this.newTodo
-      this.resetField()
-      this.cancelModal()
+
+      if(this.newTodo == ''){
+        this.emptyNewTodo = true
+      } else {
+        this.todos[this.todoKey].text = this.newTodo
+        this.todos[this.todoKey].edited = true
+        this.emptyNewTodo = false
+        this.resetField()
+        this.cancelModal()
+      }
+      
     },
     cancelEditAnyTodo(){
       this.resetField()
@@ -69,9 +79,17 @@ export default {
       this.modalType = 'add'
     },
     cancelModal(){
+      this.emptyNewTodo = false
       this.openModal = false
       this.modalType = ''
       this.resetField()
+    },
+    toggleCheckList(index){
+      if(this.todos[index].checkList == false){
+        this.todos[index].checkList = true
+      } else {
+        this.todos[index].checkList = false
+      }
     }
   }
 }
@@ -93,8 +111,14 @@ export default {
   
   <ol class="list-decimal list-inside"> 
     <li v-for="(todo, index) in todos" :key="index" class="p-2 my-2 shadow rounded border flex justify-between items-center">
-      <p class="text-gray-700 inline text-base font-medium mr-2">{{ todo.text }}</p>
+      <div class="text">
+        <p class="text-gray-700 text-base font-medium mr-2">{{ todo.text }}</p>
+        <p class="text-gray-300 text-xs font-medium mr-2" v-if="todo.edited">Edited</p>
+
+      </div>
       <div class="action">
+        <button v-if="todo.checkList==false" class="h-[30px] w-[30px] mr-2 text-base border rounded-full shadow border-green-500 hover:bg-green-500 text-green-500 hover:text-white" v-on:click="toggleCheckList(index)"><i class="fa-solid fa-check"></i></button>
+        <button v-else-if="todo.checkList==true" class="h-[30px] w-[30px] mr-2 text-base border rounded-full bg-green-500 shadow text-white" v-on:click="toggleCheckList(index)"><i class="fa-solid fa-check"></i></button>
         <button @click="removeTodo(todo)" class="p-2 mr-2 border rounded shadow border-red-500 hover:bg-red-500 text-red-500 hover:text-white">Delete</button>
         <button @click="editAnyTodo(todo, index)" class="p-2 border rounded shadow border-yellow-300 hover:bg-yellow-300 text-yellow-300 hover:text-white">Edit</button>
       </div>
